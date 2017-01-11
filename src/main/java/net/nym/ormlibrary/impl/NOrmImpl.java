@@ -34,14 +34,16 @@ import java.util.Collection;
  * @time 10:42
  */
 
-public final class NOrmImpl implements NOrm,SQLiteHelper.OnUpdateListener {
+public final class NOrmImpl implements NOrm<LiteOrm>,SQLiteHelper.OnUpdateListener {
 
     private static NOrmImpl my;
     private LiteOrm mLiteOrm;
     private static String mDbName = "default.db";
     private static int mDbVersion = 1;
+    private Context mContext;
 
     private NOrmImpl(Context context, String dbName, int dbVersion){
+        mContext = context.getApplicationContext();
         mDbName = dbName;
         mDbVersion = dbVersion;
         initLiteOrm(context, dbName, dbVersion);
@@ -82,9 +84,10 @@ public final class NOrmImpl implements NOrm,SQLiteHelper.OnUpdateListener {
         mLiteOrm = LiteOrm.newSingleInstance(config);
     }
 
-    public LiteOrm getLiteOrm(Context context){
+    @Override
+    public LiteOrm getOrm() {
         if (mLiteOrm == null){
-            initLiteOrm(context,mDbName,mDbVersion);
+            initLiteOrm(mContext,mDbName,mDbVersion);
         }
         return mLiteOrm;
     }
