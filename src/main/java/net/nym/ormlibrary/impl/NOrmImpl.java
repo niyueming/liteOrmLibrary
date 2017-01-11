@@ -59,7 +59,7 @@ public final class NOrmImpl implements NOrm<LiteOrm>,SQLiteHelper.OnUpdateListen
      *
      * @hide
      */
-    private static NOrm getInstance(Context context,String dbName,int dbVersion){
+    private static NOrm<LiteOrm> getInstance(Context context,String dbName,int dbVersion){
         if (my == null){
             synchronized (NOrmImpl.class){
                 if (my == null){
@@ -70,7 +70,7 @@ public final class NOrmImpl implements NOrm<LiteOrm>,SQLiteHelper.OnUpdateListen
         return my;
     }
 
-    public static NOrm getInstance(Context context){
+    public static NOrm<LiteOrm> getInstance(Context context){
         return getInstance(context,mDbName,mDbVersion);
     }
 
