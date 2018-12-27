@@ -42,11 +42,11 @@ public final class NOrmImpl implements NOrm<LiteOrm>,SQLiteHelper.OnUpdateListen
     private static int mDbVersion = 1;
     private Context mContext;
 
-    private NOrmImpl(Context context, String dbName, int dbVersion){
+    private NOrmImpl(Context context, String dbName, int dbVersion,SQLiteHelper.OnUpdateListener listener){
         mContext = context.getApplicationContext();
         mDbName = dbName;
         mDbVersion = dbVersion;
-        initLiteOrm(context, dbName, dbVersion);
+        initLiteOrm(context, dbName, dbVersion,listener);
 
     }
 
@@ -59,11 +59,11 @@ public final class NOrmImpl implements NOrm<LiteOrm>,SQLiteHelper.OnUpdateListen
      *
      * @hide
      */
-    private static NOrm<LiteOrm> getInstance(Context context,String dbName,int dbVersion){
+    private static NOrm<LiteOrm> getInstance(Context context,String dbName,int dbVersion,SQLiteHelper.OnUpdateListener listener){
         if (my == null){
             synchronized (NOrmImpl.class){
                 if (my == null){
-                    my = new NOrmImpl(context,dbName,dbVersion);
+                    my = new NOrmImpl(context,dbName,dbVersion,listener);
                 }
             }
         }
@@ -71,14 +71,18 @@ public final class NOrmImpl implements NOrm<LiteOrm>,SQLiteHelper.OnUpdateListen
     }
 
     public static NOrm<LiteOrm> getInstance(Context context){
-        return getInstance(context,mDbName,mDbVersion);
+        return getInstance(context,mDbName,mDbVersion,null);
     }
 
-    private void initLiteOrm(Context context, String dbName, int dbVersion) {
+    public static NOrm<LiteOrm> getInstance(Context context,int dbVersion,SQLiteHelper.OnUpdateListener listener){
+        return getInstance(context,mDbName,dbVersion,listener);
+    }
+
+    private void initLiteOrm(Context context, String dbName, int dbVersion,SQLiteHelper.OnUpdateListener listener) {
         DataBaseConfig config = new DataBaseConfig(context);
         config.dbName = dbName;
         config.dbVersion = dbVersion;
-        config.onUpdateListener = this;
+        config.onUpdateListener = listener;
         config.debugged = BuildConfig.DEBUG;
 //        mLiteOrm = LiteOrm.newCascadeInstance(config);    //支持联级操作
         mLiteOrm = LiteOrm.newSingleInstance(config);
@@ -87,7 +91,7 @@ public final class NOrmImpl implements NOrm<LiteOrm>,SQLiteHelper.OnUpdateListen
     @Override
     public LiteOrm getOrm() {
         if (mLiteOrm == null){
-            initLiteOrm(mContext,mDbName,mDbVersion);
+            initLiteOrm(mContext,mDbName,mDbVersion,this);
         }
         return mLiteOrm;
     }
